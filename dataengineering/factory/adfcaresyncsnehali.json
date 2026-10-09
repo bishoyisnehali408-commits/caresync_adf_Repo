@@ -1,0 +1,15 @@
+{
+	"name": "adfcaresyncsnehali",
+	"properties": {
+		"trustModeClaimForMi": {
+			"value": "Disabled",
+			"editable": true
+		}
+	},
+	"location": "centralindia",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "a39bd768-90e7-4f60-b011-17955b6bc507",
+		"tenantId": "976ba953-eb0c-4d39-b146-9d2bf5b0c92e"
+	}
+}
