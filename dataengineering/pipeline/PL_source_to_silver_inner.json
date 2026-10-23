@@ -5,8 +5,6 @@
 			{
 				"name": "read_table_details",
 				"type": "Lookup",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
@@ -45,10 +43,83 @@
 				"typeProperties": {
 					"variableName": "start time",
 					"value": {
-						"value": "@(formatDateTime(),'yyyy MM dd_hhmmss','2026-10-22T10:57:19')",
+						"value": "@formatDateTime(utcNow(),'yyyy MM dd_hh:mm:ss')",
 						"type": "Expression"
 					}
 				}
+			},
+			{
+				"name": "source_to_landing",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "read_table_details",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Set start time",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "PostgreSqlV2Source",
+						"query": {
+							"value": "select * from PUBLIC.@{activity('read_table_details').output.firstRow.source_table_name}",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00"
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_PostgreSqlTable",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_ADLS_Parquet",
+						"type": "DatasetReference",
+						"parameters": {
+							"P_container": "landing",
+							"p_folder": {
+								"value": "@concat(\n    activity('read_table_details').output.firstRow.source_system,\n    '/',\n    activity('read_table_details').output.firstRow.source_table_name,\n    '/',\n    variables('start time')\n)",
+								"type": "Expression"
+							}
+						}
+					}
+				]
 			}
 		],
 		"parameters": {
