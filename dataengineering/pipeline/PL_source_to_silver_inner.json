@@ -45,7 +45,7 @@
 				"typeProperties": {
 					"variableName": "start time",
 					"value": {
-						"value": "@(formatDateTime(),'yyyy MM dd_hhmmss',2026-10-22T10:57:19')",
+						"value": "@(formatDateTime(),'yyyy MM dd_hhmmss','2026-10-22T10:57:19')",
 						"type": "Expression"
 					}
 				}
